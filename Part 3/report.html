@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Recover 3D structure by factoring joint image measurements.">
+  <title>Part 3 · The Factorization Method · James Xie</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body class="report-page">
+<main class="shell">
+  <header class="site-header">
+    <a class="brand" href="../index.html" aria-label="Assignment 4 home">Epipolar Geometry<br>&amp; Structure from Motion</a>
+    <nav class="header-nav" aria-label="Project navigation">
+      <a href="../index.html">Project home</a>
+      <a href="../Part%201/report.html">Fundamental matrix <span>1</span></a>
+      <a href="../Part%202/report.html">Rectification <span>2</span></a>
+      <a href="report.html" aria-current="page">Factorization <span>3</span></a>
+      <a href="../Part%204/report.html">Triangulation <span>4</span></a>
+    </nav>
+  </header>
+  <section class="project-hero">
+    <p class="eyebrow">SYDE 671 · Assignment 4 · James Xie</p>
+    <h1>PART 3 · THE FACTORIZATION<br>METHOD</h1>
+    <p class="project-deck">Recover 3D structure by factoring joint image measurements.</p>
+  </section>
+  <nav class="subpart-nav" aria-label="Subparts">
+    <a href="#a" aria-label="Subpart a">(a)</a>
+    <a href="#b" aria-label="Subpart b">(b)</a>
+    <a href="#c" aria-label="Subpart c">(c)</a>
+    <a href="#d" aria-label="Subpart d">(d)</a>
+    <a href="#e" aria-label="Subpart e">(e)</a>
+    <a href="#f" aria-label="Subpart f">(f)</a>
+  </nav>
+  <section class="report-section" id="a">
+    <h2>(a) Factorization</h2>
+    <p>The factorization takes matching pixels from two views and returns a
+    3 × N structure matrix and a 4 × 3 motion matrix. A synthetic affine scene checks that
+    their product recovers the centered measurements to numerical precision.
+    A second test checks that the fourth singular component is discarded.</p>
+  </section>
+  <section class="report-section" id="b">
+    <h2>(b) Implementation</h2>
+    <p>Stack the x and y coordinates from both images in a 4 × N matrix.
+    Subtract each row mean to remove the image translations and write the centered matrix as
+    <em>W</em> = <em>UΣV</em><sup>T</sup>. Keep the three largest singular values and split their
+    square roots between the motion and structure factors.</p>
+    <div class="formula">M = U₃√Σ₃     S = √Σ₃V₃ᵀ     W ≈ MS</div>
+    <p>Ground truth is used only to align and evaluate the recovered structure.</p>
+  </section>
+  <section class="report-section" id="c">
+    <h2>(c) Full-set reconstruction</h2>
+    <p>Fit a similarity transform to compare the 37 recovered points with ground truth.
+    The plots show the same alignment from two angles. The similarity uses translation, one scale
+    and an orthogonal transform that may reflect the coordinates because the recovered handedness is arbitrary.
+    A second fit allows a general affine transform.</p>
+    <figure>
+      <a href="figures/full-reconstruction.png"><img src="figures/full-reconstruction.png" width="1560" height="720"
+        alt="Ground truth and aligned full reconstruction overlaid from two viewpoints" loading="lazy"></a>
+      <figcaption>Full-set reconstruction after similarity alignment. Blue circles mark ground truth and orange crosses mark reconstructed points.</figcaption>
+    </figure>
+    <div class="scroll"><table>
+      <caption>3D RMSE in ground-truth units (percent of ground-truth RMS radius)</caption>
+      <thead><tr><th scope="col">Fit</th><th scope="col">Similarity</th><th scope="col">Affine</th></tr></thead>
+      <tbody><tr><th scope="row">All 37 points</th><td>1.6876 (14.55%)</td><td>1.0634 (9.17%)</td></tr></tbody>
+    </table></div>
+    <p>The reconstruction recovers the overall geometry. The affine fit reduces the error further
+    because an invertible 3 × 3 change of coordinates in <em>S</em> can be absorbed by its inverse
+    in <em>M</em>. The two-view factorization alone therefore leaves scale, orientation and
+    more general affine distortion unresolved.</p>
+  </section>
+  <section class="report-section" id="d">
+    <h2>(d) Full-set singular values</h2>
+    <p>The four singular values of the centered full-set measurements are:</p>
+    <div class="formula">959.5852 · 540.4761 · 184.4317 · 27.9152</div>
+    <p>The fourth is 15.1358% of the third. In an ideal affine camera model the centered
+    matrix is a product of a 4 × 3 motion matrix and a 3 × N structure matrix, so at most three
+    singular values are nonzero. Perspective effects and imperfect point annotations can
+    violate that model and produce a nonzero fourth value.</p>
+  </section>
+  <section class="report-section" id="e">
+    <h2>(e) Subset reconstruction</h2>
+    <p>Repeat the factorization using only the 18 supplied correspondences.
+    For a comparison on the same points, also take those 18 points from the full fit and align
+    them to the same ground truth.</p>
+    <figure>
+      <a href="figures/subset-reconstruction.png"><img src="figures/subset-reconstruction.png" width="1560" height="720"
+        alt="Ground truth and aligned subset reconstruction overlaid from two viewpoints" loading="lazy"></a>
+      <figcaption>Subset-only reconstruction after similarity alignment. Blue circles mark ground truth and orange crosses mark reconstructed points.</figcaption>
+    </figure>
+    <div class="scroll"><table>
+      <caption>3D RMSE on the same 18 points (percent of their ground-truth RMS radius)</caption>
+      <thead><tr><th scope="col">Fit</th><th scope="col">Similarity</th><th scope="col">Affine</th></tr></thead>
+      <tbody><tr><th scope="row">Subset fit</th><td>1.0436 (19.81%)</td><td>0.1152 (2.19%)</td></tr><tr><th scope="row">Full fit on the same points</th><td>0.7735 (14.68%)</td><td>0.0945 (1.79%)</td></tr></tbody>
+    </table></div>
+    <p>The subset-only fit gives higher error under both alignments. The subset is nearly planar.
+    Its ground-truth spread perpendicular to the best-fit plane is about 0.09 units, compared
+    with 3.34 and 4.07 units along the two in-plane directions. The image measurements
+    therefore give relatively little information about the third structure direction.</p>
+  </section>
+  <section class="report-section" id="f">
+    <h2>(f) Subset singular values</h2>
+    <p>The two spectra differ most in the separation between the third and fourth components.</p>
+    <div class="scroll"><table>
+      <caption>Singular values of the centered measurement matrices</caption>
+      <thead><tr><th scope="col">Component</th><th scope="col">Full set</th><th scope="col">Subset</th></tr></thead>
+      <tbody><tr><th scope="row">σ<sub>1</sub></th><td>959.5852</td><td>264.5440</td></tr><tr><th scope="row">σ<sub>2</sub></th><td>540.4761</td><td>210.0607</td></tr><tr><th scope="row">σ<sub>3</sub></th><td>184.4317</td><td>7.2192</td></tr><tr><th scope="row">σ<sub>4</sub></th><td>27.9152</td><td>5.1286</td></tr><tr><th scope="row">σ₄ / σ₃</th><td>15.1358%</td><td>71.0406%</td></tr>
+      </tbody>
+    </table></div>
+    <p>Fewer points and a smaller spatial spread reduce the overall magnitude of the spectrum.
+    The third value drops disproportionately, bringing it close to the discarded fourth component.
+    That smaller gap helps explain why the recovered third direction is more sensitive to deviations
+    from the affine model.</p>
+  </section>
+  <footer class="site-footer">
+    <p>University of Waterloo · SYDE 671</p>
+    <a href="../index.html">Project home ↑</a>
+  </footer>
+</main>
+</body>
+</html>

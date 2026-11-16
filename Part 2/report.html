@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Warp both views so corresponding epipolar lines lie on the same image rows.">
+  <title>Part 2 · Image Rectification · James Xie</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body class="report-page">
+<main class="shell">
+  <header class="site-header">
+    <a class="brand" href="../index.html" aria-label="Assignment 4 home">Epipolar Geometry<br>&amp; Structure from Motion</a>
+    <nav class="header-nav" aria-label="Project navigation">
+      <a href="../index.html">Project home</a>
+      <a href="../Part%201/report.html">Fundamental matrix <span>1</span></a>
+      <a href="report.html" aria-current="page">Rectification <span>2</span></a>
+      <a href="../Part%203/report.html">Factorization <span>3</span></a>
+      <a href="../Part%204/report.html">Triangulation <span>4</span></a>
+    </nav>
+  </header>
+  <section class="project-hero">
+    <p class="eyebrow">SYDE 671 · Assignment 4 · James Xie</p>
+    <h1>PART 2 · IMAGE<br>RECTIFICATION</h1>
+    <p class="project-deck">Warp both views so corresponding epipolar lines lie on the same image rows.</p>
+  </section>
+  <nav class="subpart-nav" aria-label="Subparts">
+    <a href="#a" aria-label="Subpart a">(a)</a>
+    <a href="#b" aria-label="Subpart b">(b)</a>
+    <a href="#c" aria-label="Subpart c">(c)</a>
+    <a href="#d" aria-label="Subpart d">(d)</a>
+  </nav>
+  <section class="report-section" id="a">
+    <h2>(a) Epipoles</h2>
+    <p>Estimate <em>F</em> using the normalized eight-point method on the 37 matches from Set 1.
+    The last left singular vector of <em>F</em> gives <em>e</em><sub>2</sub>, and that of
+    <em>F</em><sup>T</sup> gives <em>e</em><sub>1</sub>. Divide by the last coordinate to express the finite epipoles as pixels.</p>
+    <div class="formula">e₁ = (−1300.786, −142.661, 1)     e₂ = (1654.224, 45.426, 1)</div>
+    <p>With the full-precision coordinates, both relative null-space residuals are below 6 × 10<sup>−17</sup>.</p>
+  </section>
+  <section class="report-section" id="b">
+    <h2>(b) Rectifying homography</h2>
+    <p>Translate the second image center to the origin with <em>T</em>, rotate the epipole onto
+    the horizontal axis with <em>R</em>, and apply the projective transform <em>G</em> to send it to infinity.
+    Translate back to obtain <em>H</em><sub>2</sub>.</p>
+    <div class="formula">H₂ = T⁻¹ G R T
+H₂e₂ ∼ (1, 0, 0)ᵀ</div>
+    <p>The mapped epipole has zero homogeneous weight and a vertical component below
+    5 × 10<sup>−18</sup> after scaling its first component to one.</p>
+  </section>
+  <section class="report-section" id="c">
+    <h2>(c) Matching homographies</h2>
+    <p>Build <em>M</em> = [<em>e</em><sub>2</sub>]<sub>×</sub><em>F</em> +
+    <em>e</em><sub>2</sub><em>v</em><sup>T</sup>, with <em>v</em> = (1, 1, 1)<sup>T</sup>.
+    After applying <em>H</em><sub>2</sub><em>M</em> and <em>H</em><sub>2</sub> to each point set,
+    solve a least-squares fit for the horizontal coordinate of the second view.
+    The resulting affine transform <em>H</em><sub>A</sub> changes only the horizontal coordinate,
+    giving <em>H</em><sub>1</sub> = <em>H</em><sub>A</sub><em>H</em><sub>2</sub><em>M</em>.</p>
+    <div class="result-grid">
+      <figure><figcaption>H₁</figcaption><pre> 0.97531733  0.33779455  10.02235970
+-0.11474743  1.20854341  23.15059870
+ 0.00074924  0.00017805   1.00000000</pre></figure>
+      <figure><figcaption>H₂</figcaption><pre> 0.70292796 -0.10586153  69.36028980
+-0.02613340  0.88172903   3.17681676
+-0.00060702  0.00009142   1.00000000</pre></figure>
+    </div>
+    <p>Both matrices are displayed with the bottom-right entry scaled to one.</p>
+  </section>
+  <section class="report-section" id="d">
+    <h2>(d) Rectified image pair</h2>
+    <p>I warped both views using inverse mapping and placed their output canvases on a shared
+    vertical axis using the warp offsets. The overlays show 12 of the 37 point pairs for readability.
+    The table uses all 37 pairs and measures the absolute difference in row coordinates.</p>
+    <div class="scroll"><table>
+      <caption>Vertical separation of corresponding points</caption>
+      <thead><tr><th scope="col">Views</th><th scope="col">Mean (px)</th><th scope="col">Maximum (px)</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Original</th><td>33.5187</td><td>115.0000</td></tr>
+        <tr><th scope="row">Rectified</th><td>0.8568</td><td>3.8689</td></tr>
+      </tbody>
+    </table></div>
+    <div class="result-grid">
+      <figure>
+        <a href="figures/original-alignment.png"><img src="figures/original-alignment.png"
+          alt="Original image pair with visibly sloped lines between matching points" loading="lazy"></a>
+        <figcaption>Before rectification</figcaption>
+      </figure>
+      <figure>
+        <a href="figures/rectified-alignment.png"><img src="figures/rectified-alignment.png"
+          alt="Rectified image pair with near-horizontal lines between matching points" loading="lazy"></a>
+        <figcaption>After rectification, on a shared vertical axis</figcaption>
+      </figure>
+    </div>
+    <p>The near-horizontal lines let a stereo matcher search along the same row or within a
+    narrow band around it. The remaining vertical separation reflects error in the fitted geometry
+    and the input correspondences.</p>
+    <p><a href="figures/rectified-1.png">Rectified image 1</a> ·
+    <a href="figures/rectified-2.png">Rectified image 2</a></p>
+  </section>
+  <footer class="site-footer">
+    <p>University of Waterloo · SYDE 671</p>
+    <a href="../index.html">Project home ↑</a>
+  </footer>
+</main>
+</body>
+</html>

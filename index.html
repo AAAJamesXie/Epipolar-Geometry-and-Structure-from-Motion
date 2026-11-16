@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="From matching image points to 3D reconstruction.">
+  <title>Epipolar Geometry and Structure from Motion · James Xie</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="shell">
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Assignment 4 home">Epipolar Geometry<br>&amp; Structure from Motion</a>
+    <nav class="header-nav" aria-label="Project navigation">
+      <a href="index.html" aria-current="page">Project home</a>
+      <a href="Part%201/report.html">Fundamental matrix <span>1</span></a>
+      <a href="Part%202/report.html">Rectification <span>2</span></a>
+      <a href="Part%203/report.html">Factorization <span>3</span></a>
+      <a href="Part%204/report.html">Triangulation <span>4</span></a>
+    </nav>
+  </header>
+  <section class="project-hero">
+    <p class="eyebrow">SYDE 671 · Assignment 4 · James Xie</p>
+    <h1>EPIPOLAR GEOMETRY<br>&amp; STRUCTURE FROM MOTION</h1>
+    <p class="project-deck">From matching image points to 3D reconstruction.</p>
+  </section>
+  <section class="project-index" id="reports" aria-labelledby="reports-title">
+    <div class="section-heading"><h2 id="reports-title">Reports</h2></div>
+    <article class="study-row">
+      <div class="study-copy">
+        <p class="eyebrow">Part 1</p>
+        <h3>Fundamental Matrix Estimation</h3>
+        <p>Estimate the fundamental matrix from corresponding points and measure their distances to epipolar lines.</p>
+        <a class="solid-link" href="Part%201/report.html">Open Part 1 <span aria-hidden="true">→</span></a>
+      </div>
+    <a class="study-image" href="Part%201/report.html#f" aria-label="View the epipolar-line results">
+      <img src="Part%201/figures/set1-normalized.png" width="831" height="392"
+        alt="Two views of the same scene with red epipolar lines and blue correspondence points">
+    </a>
+    </article>
+    <article class="study-row">
+      <div class="study-copy">
+        <p class="eyebrow">Part 2</p>
+        <h3>Image Rectification</h3>
+        <p>Warp both views so corresponding epipolar lines lie on the same image rows.</p>
+        <a class="solid-link" href="Part%202/report.html">Open Part 2 <span aria-hidden="true">→</span></a>
+      </div>
+    <a class="study-image" href="Part%202/report.html#d" aria-label="View the rectified image pair">
+      <img src="Part%202/figures/rectified-alignment.png"
+        alt="Two rectified views with near-horizontal lines between corresponding points" loading="lazy">
+    </a>
+    </article>
+    <article class="study-row">
+      <div class="study-copy">
+        <p class="eyebrow">Part 3</p>
+        <h3>The Factorization Method</h3>
+        <p>Recover 3D structure by factoring joint image measurements.</p>
+        <a class="solid-link" href="Part%203/report.html">Open Part 3 <span aria-hidden="true">→</span></a>
+      </div>
+    <a class="study-image" href="Part%203/report.html#c" aria-label="View the full-set 3D comparison">
+      <img src="Part%203/figures/full-reconstruction.png" width="1560" height="720"
+        alt="Two views of the reconstructed 3D points overlaid on ground truth" loading="lazy">
+    </a>
+    </article>
+    <article class="study-row">
+      <div class="study-copy">
+        <p class="eyebrow">Part 4</p>
+        <h3>Triangulation in Structure from Motion</h3>
+        <p>Estimate camera poses, refine triangulated points, and reconstruct a statue from multiple views.</p>
+        <a class="solid-link" href="Part%204/report.html">Open Part 4 <span aria-hidden="true">→</span></a>
+      </div>
+    <a class="study-image" href="Part%204/report.html#f" aria-label="View the statue reconstruction">
+      <img src="Part%204/figures/statue-reconstruction.png" width="1350" height="1200"
+        alt="Dense point cloud of the reconstructed statue" loading="lazy">
+    </a>
+    </article>
+  </section>
+  <footer class="site-footer">
+    <p>University of Waterloo · SYDE 671</p>
+    <a href="index.html">Project home ↑</a>
+  </footer>
+</main>
+</body>
+</html>

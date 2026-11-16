@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Estimate the fundamental matrix from corresponding points and measure their distances to epipolar lines.">
+  <title>Part 1 · Fundamental Matrix Estimation · James Xie</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body class="report-page">
+<main class="shell">
+  <header class="site-header">
+    <a class="brand" href="../index.html" aria-label="Assignment 4 home">Epipolar Geometry<br>&amp; Structure from Motion</a>
+    <nav class="header-nav" aria-label="Project navigation">
+      <a href="../index.html">Project home</a>
+      <a href="report.html" aria-current="page">Fundamental matrix <span>1</span></a>
+      <a href="../Part%202/report.html">Rectification <span>2</span></a>
+      <a href="../Part%203/report.html">Factorization <span>3</span></a>
+      <a href="../Part%204/report.html">Triangulation <span>4</span></a>
+    </nav>
+  </header>
+  <section class="project-hero">
+    <p class="eyebrow">SYDE 671 · Assignment 4 · James Xie</p>
+    <h1>PART 1 · FUNDAMENTAL MATRIX<br>ESTIMATION</h1>
+    <p class="project-deck">Estimate the fundamental matrix from corresponding points and measure their distances to epipolar lines.</p>
+  </section>
+  <nav class="subpart-nav" aria-label="Subparts">
+    <a href="#a" aria-label="Subpart a">(a)</a>
+    <a href="#b" aria-label="Subpart b">(b)</a>
+    <a href="#c" aria-label="Subpart c">(c)</a>
+    <a href="#d" aria-label="Subpart d">(d)</a>
+    <a href="#e" aria-label="Subpart e">(e)</a>
+    <a href="#f" aria-label="Subpart f">(f)</a>
+  </nav>
+  <section class="report-section" id="a">
+    <h2>(a) Linear eight-point algorithm</h2>
+    <p>Each correspondence adds a row to <em>Af</em> = 0 under the ideal epipolar constraint
+    <em>x</em><sub>2</sub><sup>T</sup><em>F x</em><sub>1</sub> = 0. The last right singular vector
+    of <em>A</em> gives the initial 3 × 3 estimate of <em>F</em>. A second SVD sets the smallest
+    singular value to zero to enforce rank two.</p>
+  </section>
+  <section class="report-section" id="b">
+    <h2>(b) Linear results</h2>
+    <p>Set 1 has 37 correspondences and Set 2 has 46. Each reported matrix has unit Frobenius
+    norm, with its largest-magnitude entry positive. Entries are shown to eight decimal places.</p><div class="result-grid"><figure><figcaption>Set 1</figcaption><pre> 0.00000155 -0.00000818 -0.00150440
+-0.00000587 -0.00000030 -0.01136076
+-0.00352312  0.01414539  0.99982807</pre></figure><figure><figcaption>Set 2</figcaption><pre> 0.00000563 -0.00002750  0.00642650
+ 0.00002776  0.00000675 -0.01521820
+-0.01076236  0.01225192  0.99973055</pre></figure></div>
+  </section>
+  <section class="report-section" id="c">
+    <h2>(c) Normalized eight-point algorithm</h2>
+    <p>Center each point set at its own centroid and scale it to a mean distance of √2
+    from the origin. Apply the rank-two solver in normalized coordinates, then return
+    to pixels:</p>
+    <div class="formula">F = T₂ᵀ Fₙ T₁</div>
+  </section>
+  <section class="report-section" id="d">
+    <h2>(d) Normalized results</h2>
+    <div class="result-grid"><figure><figcaption>Set 1</figcaption><pre> 0.00000446 -0.00003639  0.00060312
+-0.00003351 -0.00000232 -0.04391488
+-0.00584763  0.06030859  0.99719597</pre></figure><figure><figcaption>Set 2</figcaption><pre> 0.00001334 -0.00022205  0.01378022
+-0.00032032 -0.00002837 -0.61962178
+-0.02086722  0.75224169  0.22265623</pre></figure></div>
+  </section>
+  <section class="report-section" id="e">
+    <h2>(e) Point-to-epipolar-line distance</h2>
+    <p>Each point in the second image defines a line in the first image through
+    ℓ₁ = Fᵀx₂. For the second image, swap the point sets and transpose F.</p>
+  </section>
+  <section class="report-section" id="f">
+    <h2>(f) Distance results and overlays</h2>
+    <p>For line (a, b, c) and pixel (u, v), compute |au + bv + c| / √(a² + b²)
+    and average over the correspondences used to fit each matrix.</p>
+    <div class="scroll"><table>
+      <caption>Mean point-to-epipolar-line distance</caption>
+      <thead><tr><th scope="col">Image</th><th scope="col">Linear (px)</th><th scope="col">Normalized (px)</th></tr></thead>
+      <tbody><tr><th scope="row">Set 1, image 1</th><td>28.0257</td><td>0.8906</td></tr><tr><th scope="row">Set 1, image 2</th><td>25.1629</td><td>0.8287</td></tr><tr><th scope="row">Set 2, image 1</th><td>9.7014</td><td>0.8895</td></tr><tr><th scope="row">Set 2, image 2</th><td>14.5682</td><td>0.8917</td></tr></tbody>
+    </table></div>
+    <p>Normalization reduced the mean distance in all four images to below 0.90 pixels.
+    The overlays show epipolar lines in red and matching points in blue.</p>
+    <div class="result-grid"><figure><a href="figures/set1-lls.png"><img src="figures/set1-lls.png" alt="Set 1 linear epipolar lines" width="831" height="392" loading="lazy"></a><figcaption>Set 1 linear epipolar lines</figcaption></figure>
+<figure><a href="figures/set1-normalized.png"><img src="figures/set1-normalized.png" alt="Set 1 normalized epipolar lines" width="831" height="392" loading="lazy"></a><figcaption>Set 1 normalized epipolar lines</figcaption></figure>
+<figure><a href="figures/set2-lls.png"><img src="figures/set2-lls.png" alt="Set 2 linear epipolar lines" width="831" height="392" loading="lazy"></a><figcaption>Set 2 linear epipolar lines</figcaption></figure>
+<figure><a href="figures/set2-normalized.png"><img src="figures/set2-normalized.png" alt="Set 2 normalized epipolar lines" width="831" height="392" loading="lazy"></a><figcaption>Set 2 normalized epipolar lines</figcaption></figure></div>
+  </section>
+  <footer class="site-footer">
+    <p>University of Waterloo · SYDE 671</p>
+    <a href="../index.html">Project home ↑</a>
+  </footer>
+</main>
+</body>
+</html>

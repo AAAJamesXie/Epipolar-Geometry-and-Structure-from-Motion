@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Estimate camera poses, refine triangulated points, and reconstruct a statue from multiple views.">
+  <title>Part 4 · Triangulation in Structure from Motion · James Xie</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body class="report-page">
+<main class="shell">
+  <header class="site-header">
+    <a class="brand" href="../index.html" aria-label="Assignment 4 home">Epipolar Geometry<br>&amp; Structure from Motion</a>
+    <nav class="header-nav" aria-label="Project navigation">
+      <a href="../index.html">Project home</a>
+      <a href="../Part%201/report.html">Fundamental matrix <span>1</span></a>
+      <a href="../Part%202/report.html">Rectification <span>2</span></a>
+      <a href="../Part%203/report.html">Factorization <span>3</span></a>
+      <a href="report.html" aria-current="page">Triangulation <span>4</span></a>
+    </nav>
+  </header>
+  <section class="project-hero">
+    <p class="eyebrow">SYDE 671 · Assignment 4 · James Xie</p>
+    <h1>PART 4 · TRIANGULATION IN<br>STRUCTURE FROM MOTION</h1>
+    <p class="project-deck">Estimate camera poses, refine triangulated points, and reconstruct a statue from multiple views.</p>
+  </section>
+  <nav class="subpart-nav" aria-label="Subparts">
+    <a href="#a" aria-label="Subpart a">(a)</a>
+    <a href="#b" aria-label="Subpart b">(b)</a>
+    <a href="#c" aria-label="Subpart c">(c)</a>
+    <a href="#d" aria-label="Subpart d">(d)</a>
+    <a href="#e" aria-label="Subpart e">(e)</a>
+    <a href="#f" aria-label="Subpart f">(f)</a>
+  </nav>
+  <section class="report-section" id="a">
+    <h2>(a) Candidate camera poses</h2>
+    <p>Compute <em>E</em> = <em>K</em><sup>T</sup><em>FK</em> using the supplied fundamental matrix for
+    B21–B22 and the focal length of 719.5459 pixels. Decompose <em>E</em> by SVD to get two proper
+    rotations and a unit translation direction. Pair each rotation with both signs of the direction.</p>
+    <div class="result-grid">
+      <figure><figcaption>Rotation A</figcaption><pre> 0.98305251 -0.11787055 -0.14040758
+-0.11925737 -0.99286228 -0.00147453
+-0.13923158  0.01819418 -0.99009269</pre></figure>
+      <figure><figcaption>Rotation B</figcaption><pre> 0.97364135 -0.09878708 -0.20558119
+ 0.10189204  0.99478508  0.00454512
+ 0.20406010 -0.02537241  0.97862951</pre></figure>
+    </div>
+    <p>The translation candidates are ±(0.99941228, −0.00886961, 0.03311219).
+    Rotation B with positive translation matches the supplied example within 0.000046 per entry.</p>
+  </section>
+  <section class="report-section" id="b">
+    <h2>(b) Linear triangulation</h2>
+    <p>For each observation (u, v), use the camera matrix rows m₁, m₂ and m₃ to build two
+    equations in the homogeneous 3D point. Take the last right singular vector of the stacked
+    system and divide by its last coordinate.</p>
+    <div class="formula">Aᵢ = [ u m₃ − m₁ ; v m₃ − m₂ ]</div>
+    <p>The first supplied match reconstructs to (0.676717, −1.102419, 4.660340). It differs
+    from the starter reference by at most 0.001760. An independent eigensolve of
+    <em>A</em><sup>T</sup><em>A</em> reproduces the SVD solution within 10<sup>−10</sup>.</p>
+  </section>
+  <section class="report-section" id="c">
+    <h2>(c) Reprojection error and Jacobian</h2>
+    <p>Project the 3D point into each camera, divide by depth, and subtract the observed pixel
+    coordinates. Differentiate the division to form two Jacobian rows per camera.</p>
+    <div class="formula">rᵢ = (y₁/y₃, y₂/y₃) − (uᵢ, vᵢ)
+∂(yⱼ/y₃)/∂X = (mⱼ,xyz − (yⱼ/y₃)m₃,xyz) / y₃</div>
+    <p>On the supplied two-view fixture, the residual and the 4 × 3 Jacobian match the reference
+    within 10<sup>−6</sup> per entry. The analytic derivative also agrees with a central
+    finite-difference check on a synthetic scene.</p>
+  </section>
+  <section class="report-section" id="d">
+    <h2>(d) Gauss–Newton refinement</h2>
+    <p>Start from the DLT point and take 10 Gauss–Newton steps. At each step solve
+    <em>JΔ</em> ≈ <em>r</em> and subtract <em>Δ</em> from the current point. On the supplied
+    four-camera fixture, the stacked reprojection residual norm fell from 98.7354 to 95.5948 pixels.</p>
+  </section>
+  <section class="report-section" id="e">
+    <h2>(e) Camera pose selection</h2>
+    <p>Triangulate all 50 sparse matches from B21–B22 under each pose. A point counts only
+    when its depth is positive in both camera frames, using <em>RX + t</em> in the second view.</p>
+    <div class="scroll"><table>
+      <caption>Points in front of both cameras</caption>
+      <thead><tr><th scope="col">Rotation</th><th scope="col">+t</th><th scope="col">−t</th></tr></thead>
+      <tbody><tr><th scope="row">A</th><td>0</td><td>0</td></tr>
+        <tr><th scope="row">B</th><td>50</td><td>0</td></tr></tbody>
+    </table></div>
+    <p>Rotation B with +t is the selected pose.</p>
+  </section>
+  <section class="report-section" id="f">
+    <h2>(f) Statue reconstruction</h2>
+    <p>Apply the supplied bundle adjustment and frame merging to estimate five camera poses
+    and 152 sparse points. Triangulate the supplied dense matches from all four adjacent pairs
+    in the merged coordinate system.</p>
+    <div class="scroll"><table>
+      <caption>Dense triangulation by image pair</caption>
+      <thead><tr><th scope="col">Pair</th><th scope="col">Matches</th></tr></thead>
+      <tbody><tr><th scope="row">B21–B22</th><td>29,189</td></tr>
+        <tr><th scope="row">B22–B23</th><td>20,932</td></tr>
+        <tr><th scope="row">B23–B24</th><td>16,264</td></tr>
+        <tr><th scope="row">B24–B25</th><td>114,612</td></tr></tbody>
+    </table></div>
+    <figure>
+      <a href="figures/statue-reconstruction.png"><img src="figures/statue-reconstruction.png"
+        width="1350" height="1200" alt="Dense 3D point cloud of the statue reconstructed from five views" loading="lazy"></a>
+      <figcaption>Statue reconstruction. The plot shows 180,271 of the 180,997 finite
+      triangulated points within the assignment’s display bounds. The reconstruction has an arbitrary global scale.</figcaption>
+    </figure>
+    <p>A house needs enough overlapping views to cover multiple facades and areas hidden by
+    corners or vegetation. Repeated windows can produce incorrect matches, and distant surfaces
+    need enough change in viewpoint for reliable depth. More images also increase the cost of
+    matching and bundle adjustment.</p>
+  </section>
+  <footer class="site-footer">
+    <p>University of Waterloo · SYDE 671</p>
+    <a href="../index.html">Project home ↑</a>
+  </footer>
+</main>
+</body>
+</html>
