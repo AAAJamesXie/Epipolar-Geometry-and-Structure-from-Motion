@@ -70,6 +70,7 @@
   </section>
   <section class="report-section" id="d">
     <h2>(d) Gauss–Newton refinement</h2>
+    <p>I projected the initial and refined points into the same four cameras. For each estimate, I combined the x and y residuals from all four views into one vector and measured its Euclidean length.</p>
     <p>Start from the DLT point and take 10 Gauss–Newton steps. At each step solve
     <em>JΔ</em> ≈ <em>r</em> and subtract <em>Δ</em> from the current point. On the supplied
     four-camera fixture, the stacked reprojection residual norm fell from 98.7354 to 95.5948 pixels.</p>
@@ -89,8 +90,8 @@
   <section class="report-section" id="f">
     <h2>(f) Statue reconstruction</h2>
     <p>Apply the supplied bundle adjustment and frame merging to estimate five camera poses
-    and 152 sparse points. Triangulate the supplied dense matches from all four adjacent pairs
-    in the merged coordinate system.</p>
+    and 152 sparse points.</p>
+    <p>For each dense match, I used the two corresponding camera poses to get an initial 3D point and refined it with the same 10 steps as in (d). I pooled the four sets of points in the shared coordinate system and plotted those within the assignment’s display bounds.</p>
     <div class="scroll"><table>
       <caption>Dense triangulation by image pair</caption>
       <thead><tr><th scope="col">Pair</th><th scope="col">Matches</th></tr></thead>

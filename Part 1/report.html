@@ -41,6 +41,7 @@
   </section>
   <section class="report-section" id="b">
     <h2>(b) Linear results</h2>
+    <p>I ran the linear solver once for each image pair using all of its matches. The matrices below are the two rank-two estimates.</p>
     <p>Set 1 has 37 correspondences and Set 2 has 46. Each reported matrix has unit Frobenius
     norm, with its largest-magnitude entry positive. Entries are shown to eight decimal places.</p><div class="result-grid"><figure><figcaption>Set 1</figcaption><pre> 0.00000155 -0.00000818 -0.00150440
 -0.00000587 -0.00000030 -0.01136076
@@ -57,6 +58,7 @@
   </section>
   <section class="report-section" id="d">
     <h2>(d) Normalized results</h2>
+    <p>I used the same matches as in (b), solved in normalized coordinates, and converted the estimates back to pixels. The matrices use the same display scale and sign as in (b).</p>
     <div class="result-grid"><figure><figcaption>Set 1</figcaption><pre> 0.00000446 -0.00003639  0.00060312
 -0.00003351 -0.00000232 -0.04391488
 -0.00584763  0.06030859  0.99719597</pre></figure><figure><figcaption>Set 2</figcaption><pre> 0.00001334 -0.00022205  0.01378022
@@ -70,6 +72,7 @@
   </section>
   <section class="report-section" id="f">
     <h2>(f) Distance results and overlays</h2>
+    <p>Each table cell averages the distances for one image and one fitted matrix. The plots use the same matched points and their corresponding lines.</p>
     <p>For line (a, b, c) and pixel (u, v), compute |au + bv + c| / √(a² + b²)
     and average over the correspondences used to fit each matrix.</p>
     <div class="scroll"><table>

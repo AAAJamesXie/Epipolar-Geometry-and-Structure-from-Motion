@@ -50,6 +50,7 @@
   </section>
   <section class="report-section" id="c">
     <h2>(c) Full-set reconstruction</h2>
+    <p>After alignment, I squared each point’s 3D distance to its ground-truth match, averaged the squared distances, and took the square root. The percentages divide that RMSE by the ground-truth points’ RMS distance from their centroid.</p>
     <p>Fit a similarity transform to compare the 37 recovered points with ground truth.
     The plots show the same alignment from two angles. The similarity uses translation, one scale
     and an orthogonal transform that may reflect the coordinates because the recovered handedness is arbitrary.
@@ -71,6 +72,7 @@
   </section>
   <section class="report-section" id="d">
     <h2>(d) Full-set singular values</h2>
+    <p>I took all four values from the SVD of the centered 4 × 37 matrix before truncating it to rank three.</p>
     <p>The four singular values of the centered full-set measurements are:</p>
     <div class="formula">959.5852 · 540.4761 · 184.4317 · 27.9152</div>
     <p>The fourth is 15.1358% of the third. In an ideal affine camera model the centered
@@ -100,6 +102,7 @@
   </section>
   <section class="report-section" id="f">
     <h2>(f) Subset singular values</h2>
+    <p>I repeated the SVD on the centered 4 × 18 matrix. The last row divides the fourth singular value by the third for each dataset.</p>
     <p>The two spectra differ most in the separation between the third and fourth components.</p>
     <div class="scroll"><table>
       <caption>Singular values of the centered measurement matrices</caption>
